@@ -1,0 +1,26 @@
+<div>
+  <div id="error-message">
+    {% if error %}
+    <p>{{ error }}</p>
+    {% endif %}
+  </div>
+  {% if transcripts %}
+  <h2>Transcripts</h2>
+  <form>
+    {% for transcript in transcripts %}
+    <div>
+      <input
+        type="checkbox"
+        id="{{ transcript.title }}"
+        name="episodes"
+        value="{{ transcript.title }}"
+      />
+      <label for="{{ transcript.title }}">{{ transcript.title }}</label>
+    </div>
+    {% endfor %}
+  </form>
+  {% else %}
+  <p>No transcripts found for this channel.</p>
+  <!-- Graceful handling of no data -->
+  {% endif %}
+</div>

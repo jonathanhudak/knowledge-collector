@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transcript Service</title>
+    <script src="https://unpkg.com/htmx.org@1.9.3"></script>
+    <script>
+      function updateActionUrl() {
+        const form = document.getElementById("channelForm");
+        const channelName = form.channel_name.value;
+        console.log("channelName", channelName);
+        form.action = `/transcripts?channel_name=${encodeURIComponent(
+          channelName
+        )}`; // Update action URL with query param
+      }
+
+      function handleResponse(response) {
+        const progressDiv = document.getElementById("progress");
+        progressDiv.innerHTML += response; // Append the response to the progress div
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Fetch Transcripts</h1>
+    <form
+      id="channelForm"
+      hx-get="/transcripts"
+      hx-target="#transcripts"
+      hx-swap="innerHTML"
+      onsubmit="updateActionUrl()"
+      hx-on="htmx:beforeRequest: handleResponse(event.detail.xhr.responseText)"
+    >
+      <input
+        type="text"
+        name="channel_name"
+        placeholder="Enter YouTube/Podcast Channel"
+        required
+        value="@DaytradeWarrior"
+      />
+      <button type="submit">Get Transcripts</button>
+    </form>
+    <div id="progress" style="white-space: pre-wrap"></div>
+    <!-- Progress display -->
+    <div id="transcripts"></div>
+    <p><a href="/swagger">API Documentation</a></p>
+  </body>
+</html>

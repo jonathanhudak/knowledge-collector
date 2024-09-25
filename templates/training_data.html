@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Training Data List</title>
+    <script>
+      function syncTrainingData() {
+        fetch("/sync_training_data", {
+          method: "POST",
+        })
+          .then((response) => response.text())
+          .then((data) => {
+            alert(data); // Show success or error message
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("An error occurred while syncing training data.");
+          });
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Training Data Channels</h1>
+    <div>
+      {% if channels %}
+      <ul>
+        {% for channel in channels %}
+        <li>{{ channel }}</li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p>No training data found for any channels.</p>
+      {% endif %}
+    </div>
+    <button onclick="syncTrainingData()">Sync Training Data to S3</button>
+    <!-- Sync button -->
+  </body>
+</html>
