@@ -113,20 +113,20 @@ make cli
 
   - Usage:
     ```bash
-    python transcript_service.py fetch-transcripts --channel_name <channel_name> [--author <author_name>]
+    make cli fetch-transcripts --channel_name <channel_name> [--author <author_name>]
     ```
 
 - **fetch-single-transcript**: Fetch a single transcript for a given video URL.
 
   - Usage:
     ```bash
-    python transcript_service.py fetch-single-transcript <video_url> [--translate]
+    make cli fetch-single-transcript <video_url> [--translate]
     ```
 
 - **check-job-status**: Check the status of a transcription job.
   - Usage:
     ```bash
-    python transcript_service.py check-job-status <job_id>
+    make cli check-job-status <job_id>
     ```
 
 ### Web Interface
