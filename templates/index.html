@@ -1,48 +1,183 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Transcript Service</title>
-    <script src="https://unpkg.com/htmx.org@1.9.3"></script>
-    <script>
-      function updateActionUrl() {
-        const form = document.getElementById("channelForm");
-        const channelName = form.channel_name.value;
-        console.log("channelName", channelName);
-        form.action = `/transcripts?channel_name=${encodeURIComponent(
-          channelName
-        )}`; // Update action URL with query param
+    <title>YouTube Transcript Service</title>
+    <style>
+      .tab-content {
+        display: none;
       }
-
-      function handleResponse(response) {
-        const progressDiv = document.getElementById("progress");
-        progressDiv.innerHTML += response; // Append the response to the progress div
+      .tab-content.active {
+        display: block;
       }
-    </script>
+      #single-transcript {
+        white-space: pre-wrap;
+        margin-top: 20px;
+      }
+      .download-btn {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+    </style>
   </head>
   <body>
-    <h1>Fetch Transcripts</h1>
-    <form
-      id="channelForm"
-      hx-get="/transcripts"
-      hx-target="#transcripts"
-      hx-swap="innerHTML"
-      onsubmit="updateActionUrl()"
-      hx-on="htmx:beforeRequest: handleResponse(event.detail.xhr.responseText)"
-    >
-      <input
-        type="text"
-        name="channel_name"
-        placeholder="Enter YouTube/Podcast Channel"
-        required
-        value="@DaytradeWarrior"
-      />
-      <button type="submit">Get Transcripts</button>
-    </form>
-    <div id="progress" style="white-space: pre-wrap"></div>
-    <!-- Progress display -->
-    <div id="transcripts"></div>
+    <h1>YouTube Transcript Service</h1>
+
+    <nav>
+      <a href="{{ url_for('list_transcripts') }}" class="nav-link"
+        >View Stored Transcripts</a
+      >
+    </nav>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('channel')">
+        Channel Search
+      </div>
+      <div class="tab" onclick="switchTab('single')">Single Video</div>
+    </div>
+
+    <div id="channel-tab" class="tab-content active">
+      <form id="channelForm">
+        <input
+          type="text"
+          name="channel_name"
+          placeholder="Enter YouTube Channel"
+          required
+        />
+        <button type="submit">Get Transcripts</button>
+      </form>
+      <div id="transcripts">
+        {% if transcripts %} {{ transcripts }} {% endif %}
+      </div>
+    </div>
+
+    <div id="single-tab" class="tab-content">
+      <form id="singleVideoForm" onsubmit="fetchSingleTranscript(event)">
+        <input
+          type="text"
+          id="video-url"
+          placeholder="Enter YouTube Video URL"
+          required
+        />
+        <label>
+          <input type="checkbox" id="translate-checkbox" />
+          Translate to English
+        </label>
+        <button type="submit">Get Transcript</button>
+      </form>
+      <div id="single-transcript"></div>
+    </div>
+
     <p><a href="/swagger">API Documentation</a></p>
+
+    <script>
+      function switchTab(tabName) {
+        // Remove active class from all tabs and content
+        document
+          .querySelectorAll(".tab")
+          .forEach((tab) => tab.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((content) => content.classList.remove("active"));
+
+        // Add active class to selected tab and content
+        document
+          .querySelector(`.tab:nth-child(${tabName === "channel" ? "1" : "2"})`)
+          .classList.add("active");
+        document.getElementById(`${tabName}-tab`).classList.add("active");
+      }
+
+      async function fetchSingleTranscript(event) {
+        event.preventDefault();
+
+        const url = document.getElementById("video-url").value;
+        const translate = document.getElementById("translate-checkbox").checked;
+        const resultDiv = document.getElementById("single-transcript");
+
+        console.log(`Translation requested: ${translate}`);
+
+        try {
+          resultDiv.innerHTML = "Loading...";
+          const response = await fetch(
+            `/single_transcript?url=${encodeURIComponent(
+              url
+            )}&translate=${translate}`
+          );
+          const data = await response.json();
+          console.log("Response data:", data);
+
+          if (response.ok) {
+            let content = `
+                <h3>${data.title}</h3>
+                <p><strong>Author:</strong> ${data.author}</p>
+                <p><strong>Original Language:</strong> ${data.original_language}</p>
+            `;
+
+            if (data.translated_transcript) {
+              content += `
+                    <div>
+                        <h4>Original Transcript:</h4>
+                        <div style="white-space: pre-wrap;">${
+                          data.transcript
+                        }</div>
+                        ${
+                          data.download_urls
+                            ? `
+                            <a href="${data.download_urls.original}" class="download-btn" download>
+                                Download Original Transcript
+                            </a>
+                        `
+                            : ""
+                        }
+                        
+                        <h4>English Translation:</h4>
+                        <div style="white-space: pre-wrap;">${
+                          data.translated_transcript
+                        }</div>
+                        ${
+                          data.download_urls
+                            ? `
+                            <a href="${data.download_urls.translated}" class="download-btn" download>
+                                Download English Translation
+                            </a>
+                        `
+                            : ""
+                        }
+                    </div>
+                `;
+            } else {
+              content += `
+                    <h4>Transcript:</h4>
+                    <div style="white-space: pre-wrap;">${data.transcript}</div>
+                    ${
+                      data.download_urls
+                        ? `
+                        <a href="${data.download_urls.original}" class="download-btn" download>
+                            Download Transcript
+                        </a>
+                    `
+                        : ""
+                    }
+                `;
+            }
+
+            resultDiv.innerHTML = content;
+          } else {
+            resultDiv.innerHTML = `Error: ${data.error}`;
+          }
+        } catch (error) {
+          resultDiv.innerHTML = `Error: ${error.message}`;
+        }
+      }
+
+      // Initialize the tabs
+      document.addEventListener("DOMContentLoaded", function () {
+        switchTab("single"); // Start with single video tab active
+      });
+    </script>
   </body>
 </html>
