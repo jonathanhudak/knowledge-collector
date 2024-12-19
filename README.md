@@ -99,12 +99,12 @@ To fetch a single transcript for a given video URL, you can use the following en
 
 - **GET** `/single_transcript?url=<video_url>&translate=<true|false>` (default is `false`)
 
-## CLI Usage
+### CLI Usage
 
 The Transcript Service also provides a command-line interface (CLI) for interacting with the service. You can access the CLI commands by running:
 
 ```bash
-python transcript_service.py --help
+make cli
 ```
 
 ### Available Commands
