@@ -1,9 +1,6 @@
 # Makefile
 
-.PHONY: service cli
+.PHONY: service
 
 service:
 	FLASK_ENV=development FLASK_APP=transcript_service.py flask run --reload
-
-cli:
-	python transcript_service.py

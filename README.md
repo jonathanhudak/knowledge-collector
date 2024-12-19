@@ -102,7 +102,7 @@ To fetch a single transcript for a given video URL, you can use the following en
 The Transcript Service also provides a command-line interface (CLI) for interacting with the service. You can access the CLI commands by running:
 
 ```bash
-make cli
+python transcript_service.py
 ```
 
 ### Available Commands
@@ -111,20 +111,20 @@ make cli
 
   - Usage:
     ```bash
-    make cli fetch-transcripts --channel_name <channel_name> [--author <author_name>]
+    python transcript_service.py fetch-transcripts --channel_name <channel_name> [--author <author_name>]
     ```
 
 - **fetch-single-transcript**: Fetch a single transcript for a given video URL.
 
   - Usage:
     ```bash
-    make cli fetch-single-transcript <video_url> [--translate]
+    python transcript_service.py fetch-single-transcript <video_url> [--translate]
     ```
 
 - **check-job-status**: Check the status of a transcription job.
   - Usage:
     ```bash
-    make cli check-job-status <job_id>
+    python transcript_service.py check-job-status <job_id>
     ```
 
 ### Web Interface
