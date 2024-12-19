@@ -1,0 +1,12 @@
+Flask
+Flask-RESTx
+requests
+pytube
+python-dotenv
+youtube-transcript-api
+boto3
+botocore
+google-api-python-client
+anthropic
+elevenlabs
+click

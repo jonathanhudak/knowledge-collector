@@ -7,7 +7,7 @@ The Transcript Service is a Flask-based web application that allows users to fet
 ## Features
 
 - **Fetch Transcripts**: Retrieve transcripts for videos from a specified YouTube channel.
-- **Translation**: Translate transcripts into English using the Claude API.
+- **Translation**: Translate transcripts into English using the Claude API (off by default).
 - **Audio Generation**: Generate audio files from transcripts using Eleven Labs.
 - **Job Management**: Track the status of transcript fetching jobs.
 - **S3 Synchronization**: Sync training data to an AWS S3 bucket.
@@ -93,7 +93,43 @@ To check the status of a transcript fetching job, use:
 
 - **GET** `/job_status/<job_id>`
 
-## Web Interface
+### Fetching a Single Transcript
+
+To fetch a single transcript for a given video URL, you can use the following endpoint:
+
+- **GET** `/single_transcript?url=<video_url>&translate=<true|false>` (default is `false`)
+
+## CLI Usage
+
+The Transcript Service also provides a command-line interface (CLI) for interacting with the service. You can access the CLI commands by running:
+
+```bash
+python transcript_service.py --help
+```
+
+### Available Commands
+
+- **fetch-transcripts**: Fetch transcripts for a given YouTube channel.
+
+  - Usage:
+    ```bash
+    python transcript_service.py fetch-transcripts --channel_name <channel_name> [--author <author_name>]
+    ```
+
+- **fetch-single-transcript**: Fetch a single transcript for a given video URL.
+
+  - Usage:
+    ```bash
+    python transcript_service.py fetch-single-transcript <video_url> [--translate]
+    ```
+
+- **check-job-status**: Check the status of a transcription job.
+  - Usage:
+    ```bash
+    python transcript_service.py check-job-status <job_id>
+    ```
+
+### Web Interface
 
 The application provides a web interface that can be accessed at `http://localhost:5000`. You can use this interface to interact with the various features of the service.
 

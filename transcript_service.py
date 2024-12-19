@@ -18,6 +18,7 @@ import googleapiclient.discovery
 from anthropic import Anthropic
 from elevenlabs.client import ElevenLabs
 from elevenlabs import stream
+import click
 load_dotenv()  
 
 YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
@@ -489,7 +490,7 @@ def detect_language_with_claude(text):
         print(f"Language detection error: {e}")
         return "Unknown"
 
-def fetch_single_transcript(video_url, translate_to_english=False):
+def fetch_single_transcript(video_url, translate=False):
     try:
         video_id = extract_video_id(video_url)
         if not video_id:
@@ -540,7 +541,7 @@ Author: {author}
                     f.write(original_text)
             
             # Handle translation if requested
-            if translate_to_english and original_language != 'en':
+            if translate and original_language != 'en':
                 print(f"Translation requested. Original language: {original_language}")
                 translated_text = None
                 
@@ -574,7 +575,7 @@ Author: {author}
                     else:
                         translated_text = None
             else:
-                print(f"Translation not needed. translate_to_english: {translate_to_english}, original_language: {original_language}")
+                print(f"Translation not needed. translate_to_english: {translate}, original_language: {original_language}")
             
             # Create response with download URLs
             response = {
@@ -797,5 +798,36 @@ def generate_audio(video_id, type):
         print(f"Audio generation error: {e}")  # Debug log
         return jsonify({"error": str(e)}), 500
 
+@click.group()
+def cli():
+    """CLI for interacting with the Transcript Service."""
+    pass
+
+@cli.command()
+@click.option('--channel_name', required=True, help='YouTube channel name to fetch transcripts from.')
+@click.option('--author', help='YouTube author name to filter results.')
+def fetch_transcripts(channel_name, author):
+    """Fetch transcripts for a given YouTube channel."""
+    result, status_code = fetch_transcripts(channel_name, author)
+    click.echo(result)
+
+@cli.command()
+@click.argument('video_url')
+@click.option('--translate', is_flag=True, default=False, help='Translate the transcript to English.')
+def fetch_single_transcript(video_url, translate):
+    """Fetch a single transcript for a given video URL."""
+    result, status_code = fetch_single_transcript(video_url, translate)
+    click.echo(result)
+
+@cli.command()
+@click.argument('job_id')
+def check_job_status(job_id):
+    """Check the status of a transcription job."""
+    job_status = jobs.get(job_id)
+    if job_status:
+        click.echo(job_status)
+    else:
+        click.echo(f"Job {job_id} not found.")
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    cli()
