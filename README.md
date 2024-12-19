@@ -47,12 +47,10 @@ The Transcript Service is a Flask-based web application that allows users to fet
    ```
 
 4. **Set up environment variables**:
-   Create a `.env` file in the root directory and add the following:
+   Create a `.env` file in the root directory
 
-   ```plaintext
-   YOUTUBE_API_KEY=<your_youtube_api_key>
-   ANTHROPIC_API_KEY=<your_anthropic_api_key>
-   XI_API_KEY=<your_eleven_labs_api_key>
+   ```bash
+   cp .env.example .env
    ```
 
 5. **Run the application**:
